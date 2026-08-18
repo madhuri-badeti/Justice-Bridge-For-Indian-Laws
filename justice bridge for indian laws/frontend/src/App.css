@@ -1,0 +1,1184 @@
+/* =========================================
+   1. GLOBAL RESET & BASICS
+   ========================================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: #131314; 
+  color: #e3e3e3;
+  overflow: hidden; 
+}
+
+/* =========================================
+   2. MAIN LAYOUT (Sidebar + Chat)
+   ========================================= */
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* SIDEBAR - Gemini Dark Grey */
+.sidebar {
+  width: 260px;
+  background: #1e1f20;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  flex-shrink: 0;
+  transition: width 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Sidebar Hidden State */
+.sidebar.closed {
+  width: 0;
+  padding: 0 20px; 
+  opacity: 0;
+  border: none;
+}
+
+/* MAIN APP AREA */
+.app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: #131314; 
+  height: 100%;
+}
+
+/* =========================================
+   3. CHAT AREA (The Scrolling Part)
+   ========================================= */
+.chat {
+  flex: 1;
+  width: 100%;
+  max-width: 900px;        
+  margin: 0 auto;          
+  padding: 20px;
+  padding-bottom: 160px;   
+  
+  display: flex;
+  flex-direction: column;  
+  overflow-y: auto;        
+  scrollbar-width: none;   
+  -ms-overflow-style: none; 
+}
+
+.chat::-webkit-scrollbar {
+  display: none;           
+}
+
+/* =========================================
+   4. BUBBLES (Alignment Fix)
+   ========================================= */
+.bubble {
+  max-width: 80%;
+  padding: 12px 18px;
+  margin-bottom: 24px;    
+  line-height: 1.6;
+  font-size: 16px;
+  word-wrap: break-word;
+}
+
+/* USER = RIGHT + DARK PILL */
+.bubble.user {
+  align-self: flex-end;    
+  background: #282a2c;     
+  color: #fff;
+  border-radius: 18px 18px 4px 18px;
+}
+
+/* AI = LEFT + TRANSPARENT */
+.bubble.ai {
+  align-self: flex-start;  
+  background: transparent;
+  color: #ececec;
+  padding-left: 0;         
+  margin-left: 0;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+  max-width: 100%;
+}
+
+/* Images inside chat */
+.chat-image {
+  width: 100%;
+  height: 100px;        
+  object-fit: cover;    
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: block;
+}
+
+.chat-image:hover {
+  transform: scale(1.05); 
+}
+
+.image-grid.single-image {
+  display: block; 
+}
+
+.image-grid.single-image .chat-image {
+  width: auto;
+  height: auto;
+  max-width: 300px;
+  max-height: 400px;
+  object-fit: contain;
+}
+
+/* =========================================
+   5. INPUT BAR (Floating Pill)
+   ========================================= */
+.input-container {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%); 
+  
+  width: 90%;
+  max-width: 800px;
+  
+  background: #1e1f20;
+  border-radius: 36px;     
+  border: 1px solid #333;  
+  
+  display: flex;
+  align-items: center;   
+  padding: 12px 20px;
+  gap: 12px;
+  
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+.input-container textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 16px;
+  resize: none;
+  max-height: 150px;
+}
+
+.attach-icon {
+  font-size: 24px;
+  color: #b0b0b0;
+  cursor: pointer;
+}
+
+.send-btn {
+  background: white;
+  color: black;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Image Preview (Floating above input) */
+.image-preview {
+  position: absolute;
+  top: -70px; 
+  left: 20px;
+  background: #2a2a2a;
+  padding: 8px 12px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #444;
+}
+
+.image-preview img {
+  height: 40px;
+  border-radius: 6px;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px; /* Adds space between the logo and text */
+  padding: 20px;
+  font-size: 24px;
+  font-weight: 500;
+  color: #8e8e8e; 
+}
+
+.title-watermark {
+  height: 35px; /* Adjust scale to fit the title height */
+  width: auto;
+  opacity: 0.2; /* Makes it look like a faded watermark */
+  filter: grayscale(100%) invert(100%); /* Turns the black scale white/grey for dark mode */
+  pointer-events: none; 
+}
+
+.menu-toggle {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* =========================================
+   7. SIDEBAR ELEMENTS
+   ========================================= */
+.sidebar-header {
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #e3e3e3;
+  padding-left: 5px;
+}
+
+.new-chat-btn {
+  background: #2a2a2a;
+  color: #e3e3e3;
+  border: none;
+  padding: 12px;
+  border-radius: 20px; 
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 20px;
+  text-align: left;
+  padding-left: 20px;
+}
+
+.new-chat-btn:hover {
+  background: #333;
+}
+
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.history-item {
+  padding: 10px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #c4c7c5;
+  margin-bottom: 2px;
+}
+
+.history-item:hover {
+  background: #2a2a2a;
+}
+
+.history-item.active {
+  background: #004a77; 
+  color: #c2e7ff;
+}
+
+/* =========================================
+   8. AUTH SCREENS (Login/Register)
+   ========================================= */
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background: radial-gradient(circle at center, #1f2123, #131314); 
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  
+  /* The Glass Effect */
+  background: rgba(30, 31, 32, 0.6); 
+  backdrop-filter: blur(16px);        
+  -webkit-backdrop-filter: blur(16px); 
+  
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  
+  text-align: center;
+  color: #e3e3e3;
+}
+
+.auth-container h2 {
+  margin-bottom: 30px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.auth-container input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 15px;
+  background: rgba(0, 0, 0, 0.2); 
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  outline: none;
+  transition: 0.2s;
+}
+
+.auth-container input:focus {
+  border-color: #a8c7fa;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.auth-container button {
+  width: 100%;
+  padding: 14px;
+  background: #a8c7fa;
+  color: #062e6f;
+  border: none;
+  border-radius: 24px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: opacity 0.2s;
+}
+
+.auth-container button:hover {
+  opacity: 0.9;
+}
+
+.auth-container p {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #9aa0a6;
+}
+
+.auth-container a {
+  color: #a8c7fa;
+  text-decoration: none;
+}
+
+/* =========================================
+   9. USER PROFILE & MENU (The Fix)
+   ========================================= */
+
+.user-profile {
+  margin-top: auto; 
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background 0.2s;
+  color: #e3e3e3;
+  user-select: none;
+  position: relative; 
+}
+
+.user-profile:hover {
+  background: #2a2a2a;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #FF512F, #DD2476); 
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-dashboard-menu {
+  position: absolute;
+  bottom: 70px;         
+  left: 10px;
+  width: 240px;         
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  z-index: 200;
+  animation: slideUpFade 0.2s ease-out forwards;
+  transform-origin: bottom center;
+}
+
+.menu-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #e3e3e3;
+  transition: background 0.2s;
+}
+
+.menu-item:hover {
+  background: #3f3f3f;
+}
+
+.menu-item.logout {
+  color: #ff8b8b;
+  border-top: 1px solid #3f3f3f;
+  margin-top: 4px;
+}
+
+.menu-item.logout:hover {
+  background: rgba(255, 70, 70, 0.15);
+  color: #ff5c5c;
+}
+
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================
+   10. ADMIN DASHBOARD UI
+========================= */
+.admin-container {
+  padding: 40px;
+  height: 100vh;
+  width: 100vw;
+  background: #131314; 
+  color: #e3e3e3;
+  overflow-y: auto;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  background: #ff5c5c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.table-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #1e1f20; 
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #333;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-table th, .user-table td {
+  text-align: left;
+  padding: 15px;
+  border-bottom: 1px solid #333;
+}
+
+.user-table th {
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.role-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.role-badge.admin {
+  background: #a8c7fa; 
+  color: #062e6f;
+}
+
+.role-badge.user {
+  background: #2a2a2a;
+  color: #c4c7c5;
+  border: 1px solid #444;
+}
+
+.delete-btn {
+  background: rgba(255, 70, 70, 0.15);
+  color: #ff5c5c;
+  border: 1px solid #ff5c5c;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  background: #ff5c5c;
+  color: white;
+}
+
+.image-preview-container {
+  position: absolute;
+  top: -90px;
+  left: 20px;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: #2a2a2a;
+  border-radius: 12px;
+  border: 1px solid #444;
+  overflow-x: auto; 
+  max-width: 90%;
+}
+
+.preview-item {
+  position: relative;
+}
+
+.preview-item img {
+  height: 60px;
+  width: auto;
+  border-radius: 6px;
+  display: block;
+}
+
+.remove-btn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================
+   11. AI RESPONSE FORMATTING (Markdown Styling)
+   ========================================= */
+
+/* Base AI Text */
+.bubble.ai {
+  color: #e3e3e3;        /* Soft grey text */
+  line-height: 1.6;      /* Better readability */
+  font-size: 15px;
+}
+
+/* HEADINGS (e.g., "The Release Window") */
+.bubble.ai h1, 
+.bubble.ai h2, 
+.bubble.ai h3 {
+  color: #ffffff;        /* Pure white for contrast */
+  font-weight: 700;      /* Bold */
+  margin-top: 24px;      /* Space above heading */
+  margin-bottom: 12px;   /* Space below heading */
+  font-size: 17px;       /* Slightly larger */
+  letter-spacing: 0.3px;
+}
+
+/* Remove top margin if the heading is the very first item */
+.bubble.ai > *:first-child {
+  margin-top: 0;
+}
+
+/* PARAGRAPHS */
+.bubble.ai p {
+  margin-bottom: 16px;   /* Space between blocks of text */
+}
+
+/* BOLD TEXT (e.g., "Filming:", "The Cast:") */
+.bubble.ai strong, 
+.bubble.ai b {
+  color: #ffffff;        /* White to pop against the grey */
+  font-weight: 700;
+}
+
+/* LISTS (The bullet points) */
+.bubble.ai ul, 
+.bubble.ai ol {
+  margin-top: 8px;
+  margin-bottom: 16px;
+  padding-left: 20px;    
+}
+
+/* LIST ITEMS */
+.bubble.ai li {
+  margin-bottom: 10px;   
+  padding-left: 5px;     
+}
+
+/* LINKS */
+.bubble.ai a {
+  color: #a8c7fa;        
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.bubble.ai a:hover {
+  text-decoration: underline;
+}
+
+/* CODE BLOCKS (If your AI returns code) */
+.bubble.ai pre {
+  background: #282a2c;
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+  border: 1px solid #444;
+}
+
+.bubble.ai code {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+/* Reset background for code inside pre blocks */
+.bubble.ai pre code {
+  background: transparent;
+  padding: 0;
+}
+
+/* =========================================
+   12. LEGAL RESPONSE COLOR CODING
+   ========================================= */
+
+/* Base container for the parsed response */
+.legal-response-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 1. EXPLANATION (White/Default) */
+.legal-section-explanation {
+  color: #e3e3e3;
+  border-left: 3px solid #e3e3e3;
+  padding-left: 12px;
+}
+
+/* 2. risky (Red) */
+.legal-section-risky{
+  color: #ff6b6b; /* Soft Red for dark mode */
+  border-left: 3px solid #ff6b6b;
+  padding-left: 12px;
+  background: rgba(255, 107, 107, 0.05); /* Slight tint background */
+  padding: 10px;
+  border-radius: 0 8px 8px 0;
+}
+
+/* 3. IMPORTANT TERMS (Yellow) */
+.legal-section-important {
+  color: #feca57; /* Soft Yellow/Gold */
+  border-left: 3px solid #feca57;
+  padding-left: 12px;
+}
+
+/* 4. SAFE CLAUSES (Green) */
+.legal-section-safe {
+  color: #1dd1a1; /* Bright Green */
+  border-left: 3px solid #1dd1a1;
+  padding-left: 12px;
+}
+
+/* Header styling within sections */
+.legal-header {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 14px;
+  margin-bottom: 8px;
+  opacity: 0.9;
+  letter-spacing: 1px;
+}
+
+.app::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 95vw;         /* Scales nicely with the window */
+  max-width: none;       /* No max width to allow full scaling */
+  height: 95vh;
+  background-image: url('/indian-emblem.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.10;       /* Back to a subtle 5% visibility */
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* =========================================
+   ☀️ LIGHT MODE OVERRIDES
+   ========================================= */
+body.light-mode {
+  background-color: #f0f4f9;
+  color: #1f1f1f;
+}
+
+/* Sidebar & Main App */
+body.light-mode .sidebar {
+  background: #f8fafd;
+  border-right: 1px solid #e0e0e0;
+}
+body.light-mode .app {
+  background: #f0f4f9;
+}
+
+/* Text Colors */
+body.light-mode .sidebar-header,
+body.light-mode .history-item,
+body.light-mode .user-profile,
+body.light-mode .menu-item {
+  color: #1f1f1f;
+}
+
+body.light-mode .page-title,
+body.light-mode .menu-toggle {
+  color: #5f6368;
+}
+
+/* Buttons & Active States */
+body.light-mode .new-chat-btn {
+  background: #e8eaed;
+  color: #1f1f1f;
+}
+body.light-mode .new-chat-btn:hover {
+  background: #d5d7da;
+}
+body.light-mode .history-item:hover {
+  background: #e8eaed;
+}
+body.light-mode .history-item.active {
+  background: #c2e7ff;
+  color: #004a77;
+}
+body.light-mode .user-profile:hover {
+  background: #e8eaed;
+}
+
+/* Dropdown Menu */
+body.light-mode .user-dashboard-menu {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+body.light-mode .menu-item:hover {
+  background: #f0f4f9;
+}
+body.light-mode .menu-item.logout {
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Chat Bubbles */
+body.light-mode .bubble.user {
+  background: #e3e3e3;
+  color: #1f1f1f;
+}
+body.light-mode .bubble.ai {
+  color: #1f1f1f;
+}
+body.light-mode .bubble.ai h1, 
+body.light-mode .bubble.ai h2, 
+body.light-mode .bubble.ai h3,
+body.light-mode .bubble.ai strong, 
+body.light-mode .bubble.ai b {
+  color: #000000;
+}
+body.light-mode .bubble.ai pre {
+  background: #f1f3f4;
+  border: 1px solid #e0e0e0;
+}
+body.light-mode .bubble.ai code {
+  color: #1f1f1f;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Input Container */
+body.light-mode .input-container {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+body.light-mode .input-container textarea {
+  color: #1f1f1f;
+}
+body.light-mode .send-btn {
+  background: #1a73e8;
+  color: white;
+}
+body.light-mode .image-preview-container {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+}
+
+/* Legal AI Coloring Adjustments */
+body.light-mode .legal-section-explanation {
+  color: #1f1f1f;
+  border-left-color: #1f1f1f;
+}
+body.light-mode .legal-section-risky {
+  color: #d32f2f;
+  border-left-color: #d32f2f;
+  background: rgba(211, 47, 47, 0.05);
+}
+body.light-mode .legal-section-important {
+  color: #f57f17;
+  border-left-color: #f57f17;
+}
+body.light-mode .legal-section-safe {
+  color: #2e7d32;
+  border-left-color: #2e7d32;
+}
+
+/* Watermark Fix for Light Mode */
+body.light-mode .title-watermark {
+  filter: grayscale(100%); /* Removes the 'invert' so the logo stays black */
+  opacity: 0.9; /* Slightly darker so it's visible on the white background */
+}
+
+/* =========================================
+   13. CUSTOM GLASSMORPHISM MODE SELECTOR
+   ========================================= */
+.custom-mode-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* The Button itself */
+.custom-mode-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(42, 42, 42, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e3e3e3;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  height: 34px;
+}
+
+.custom-mode-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.mode-text {
+  white-space: nowrap;
+}
+
+.chevron {
+  font-size: 10px;
+  transition: transform 0.3s ease;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+/* The Floating Menu (Glassmorphism) */
+.custom-mode-menu {
+  position: absolute;
+  bottom: calc(100% + 12px); /* Pops upwards */
+  right: 0;
+  width: 200px;
+  
+  background: rgba(30, 31, 32, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 8px;
+  
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  animation: popUpFade 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  transform-origin: bottom right;
+}
+
+@keyframes popUpFade {
+  0% { opacity: 0; transform: translateY(10px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Individual Options */
+.custom-mode-item {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #c4c7c5;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.custom-mode-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.custom-mode-item.active {
+  background: rgba(168, 199, 250, 0.15);
+  color: #a8c7fa;
+  font-weight: 600;
+}
+
+/* =========================================
+   ☀️ LIGHT MODE OVERRIDES FOR CUSTOM DROPDOWN
+   ========================================= */
+body.light-mode .custom-mode-button {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #e0e0e0;
+  color: #1f1f1f;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+body.light-mode .custom-mode-button:hover {
+  background: #ffffff;
+  border-color: #1a73e8;
+}
+
+body.light-mode .custom-mode-menu {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .custom-mode-item {
+  color: #444;
+}
+
+body.light-mode .custom-mode-item:hover {
+  background: #f1f3f4;
+  color: #000;
+}
+
+body.light-mode .custom-mode-item.active {
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+
+/* =========================================
+   14. SUMMARY CARD STYLING
+   ========================================= */
+.legal-section-summary {
+  background: rgba(168, 199, 250, 0.1); /* Subtle blue tint for dark mode */
+  border: 1px solid rgba(168, 199, 250, 0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 8px;
+  color: #e3e3e3;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.legal-section-summary p {
+  margin-bottom: 8px !important;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.legal-section-summary p:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Light Mode Support for the Card */
+body.light-mode .legal-section-summary {
+  background: #e8f0fe;
+  border: 1px solid #aecbfa;
+  color: #1f1f1f;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* =========================================
+   15. DOCUMENT ATTACHMENT STYLING
+   ========================================= */
+.chat-doc-bubble {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  word-break: break-all;
+  width: fit-content;
+}
+
+body.light-mode .chat-doc-bubble {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1f1f1f;
+}
+
+.preview-doc {
+  height: 60px;
+  padding: 0 15px;
+  background: #333;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #e3e3e3;
+  border: 1px solid #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+body.light-mode .preview-doc {
+  background: #f1f3f4;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.risk-dashboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.risk-score-circle {
+  width: 80px;
+  height: 80px;
+  border: 5px solid;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.score-value { font-size: 20px; font-weight: bold; }
+.score-label { font-size: 9px; color: #aaa; text-transform: uppercase; }
+
+.risk-stats { flex: 1; margin-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.stat-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #ccc; }
+
+.stat-dot { width: 8px; height: 8px; border-radius: 50%; }
+.stat-dot.risky { background: #ff6b6b; }
+.stat-dot.safe { background: #1dd1a1; }
+.stat-dot.important { background: #feca57; }
+
+.risk-badge {
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 11px;
+  color: #131314;
+}
+
+/* =========================================
+   17. DOWNLOAD PDF BUTTON
+   ========================================= */
+.download-pdf-btn {
+  margin-top: 16px;
+  background: rgba(168, 199, 250, 0.1);
+  color: #a8c7fa;
+  border: 1px solid rgba(168, 199, 250, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.download-pdf-btn:hover {
+  background: rgba(168, 199, 250, 0.2);
+  border-color: #a8c7fa;
+}
+
+/* Light Mode Overrides */
+body.light-mode .download-pdf-btn {
+  background: #e8f0fe;
+  color: #1a73e8;
+  border: 1px solid #aecbfa;
+}
+
+body.light-mode .download-pdf-btn:hover {
+  background: #d2e3fc;
+  border-color: #1a73e8;
+}
