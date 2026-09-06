@@ -1,3 +1,4 @@
+const API_URL = import.meta.env.VITE_API_URL;
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom"
 import "../App.css";
@@ -104,7 +105,7 @@ const LegalResponseRenderer = ({ content }) => {
   );
 };
 
-export default function App() {
+ export default function Chat() {
   const { isLightMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
@@ -112,6 +113,7 @@ export default function App() {
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState(null); 
 
   const [mode, setMode] = useState("⚖️ Legal professional");
   const [isModeOpen, setIsModeOpen] = useState(false);
@@ -128,7 +130,7 @@ export default function App() {
 
   const userName = localStorage.getItem("userName") || "User";
   const userRole = localStorage.getItem("role"); 
-
+ 
   /* =========================
      🔐 LOGIN PROTECTION
   ========================= */
@@ -193,7 +195,7 @@ export default function App() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://localhost:5000/api/sessions", {
+      const res = await fetch(`${API_URL}/api/sessions`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -212,7 +214,7 @@ export default function App() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `http://localhost:5000/api/sessions/${sessionId}`,
+        `${API_URL}/api/sessions/${sessionId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -240,7 +242,7 @@ export default function App() {
     try {
       const token = localStorage.getItem("token");
       
-      const res = await fetch(`http://localhost:5000/api/sessions/${sessionId}`, {
+      const res = await fetch(`${API_URL}/api/sessions/${sessionId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -264,9 +266,10 @@ export default function App() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://localhost:5000/api/sessions", {
+      const res = await fetch(`${API_URL}/api/sessions`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: 
+        { Authorization: `Bearer ${token}` },
       });
 
       const data = await res.json();
@@ -276,7 +279,7 @@ export default function App() {
         setMessages([]);
         setInput("");
         setImage(null);
-        setPreview(null);
+        setPreviews([]);
         await fetchSessions();
         setSidebarOpen(false); 
         return data.sessionId;
@@ -324,7 +327,7 @@ export default function App() {
         formData.append("files", file); // Must match backend 'upload.array("files")'
       });
 
-      const res = await fetch("http://localhost:5000/api/ask", {
+      const res = await fetch(`${API_URL}/api/ask`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -487,7 +490,7 @@ export default function App() {
             /*alt="Justice Scale Watermark"*/
             className="title-watermark" 
           />
-          AI Legal Assistant INDIA
+          Jusice Bridge-INDIA
         </div>
 
         <div className="chat">
@@ -510,15 +513,13 @@ export default function App() {
                 </div>
               )} 
 
-            {msg.content && (
-              msg.role === "ai" ? (
-                <LegalResponseRenderer content={msg.content} />
+            {msg.content && msg.role === "ai" ? (
+                <LegalResponseRenderer content={msg.content}/>
               ) : (
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {msg.content}
                 </ReactMarkdown>
-              )
-            )}  
+              )}  
 
             {/* 👈 ADD THIS NEW BUTTON BLOCK */}
             {msg.role === "ai" && msg.content && (
@@ -601,9 +602,9 @@ export default function App() {
             ➤
           </button>
 
-            {previews.length > 0 && (
+            {(previews?.length ?? 0) > 0 && (
               <div className="image-preview-container">
-                {previews.map((file, idx) => (
+                {(previews ?? []).map((file, idx) => (
                   <div key={idx} className="preview-item">
                     {file.type === "image" ? (
                       <img src={file.url} alt="preview" />

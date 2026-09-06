@@ -17,6 +17,8 @@ export default function Login() {
 
     try {
       const API_URL = import.meta.env.VITE_API_URL.replace(/\/$/, "");
+
+      const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -30,21 +32,18 @@ export default function Login() {
         throw new Error(data.error || "Login failed");
       }
 
-      // ✅ Store token, role, AND Name
+      // Store token, role, and name
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
-      
+
       if (data.name) {
         localStorage.setItem("userName", data.name);
       } else if (data.user && data.user.name) {
         localStorage.setItem("userName", data.user.name);
       }
 
-      if (data.role === "admin") {
-        navigate("/chat"); 
-      } else {
-        navigate("/chat"); 
-      }
+      // Navigate to chat
+      navigate("/chat");
 
     } catch (error) {
       alert(error.message);
@@ -54,7 +53,7 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-wrapper"> 
+    <div className="auth-wrapper">
       <div className="auth-container">
         <h2>Login</h2>
 
@@ -81,6 +80,6 @@ export default function Login() {
           <Link to="/register">Register</Link>
         </p>
       </div>
-    </div> 
+    </div>
   );
 }
