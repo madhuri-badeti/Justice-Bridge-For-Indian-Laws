@@ -487,7 +487,7 @@ app.delete("/api/admin/users/:id", authenticate, requireAdmin, async (req, res) 
 
   // 2. Start listening only after DB is ready
   const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+  app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
 })();
