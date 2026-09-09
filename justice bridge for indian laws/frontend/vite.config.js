@@ -10,4 +10,6 @@ export default defineConfig({
       },
     }),
   ],
+
+  base: '/Justice-Bridge-For-Indian-Laws/',
 })
